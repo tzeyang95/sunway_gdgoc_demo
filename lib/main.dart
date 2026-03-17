@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'ui_showcase.dart';
+import 'events_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,6 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final List<Widget> _pages = [
     const UiShowcasePage(), // The new beautiful UI page
+    const EventsPage(),     // Events page from Figma design
     const StateDemoPage(),  // The previous State explanation page
   ];
 
@@ -52,6 +54,10 @@ class _MainNavigationState extends State<MainNavigation> {
           NavigationDestination(
             icon: Icon(Icons.auto_awesome),
             label: 'Flexible UI',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.event),
+            label: 'Events',
           ),
           NavigationDestination(
             icon: Icon(Icons.memory),
