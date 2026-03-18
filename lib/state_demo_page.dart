@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 // ==========================================
@@ -33,7 +35,7 @@ class StateDemoPage extends StatelessWidget {
             title: 'What\'s the difference?',
           ),
           const SizedBox(height: 8),
-          _ExplanationCard(
+       const   _ExplanationCard(
             children: [
               _ConceptRow(
                 color: const Color(0xFF155DFC),
@@ -41,7 +43,7 @@ class StateDemoPage extends StatelessWidget {
                 description:
                     'Cannot change once built. Think of it like a printed poster — the content is fixed.',
               ),
-              const SizedBox(height: 12),
+               SizedBox(height: 12),
               _ConceptRow(
                 color: const Color(0xFF00C950),
                 label: 'StatefulWidget',
@@ -93,6 +95,8 @@ class StateDemoPage extends StatelessWidget {
 
           const SizedBox(height: 16),
 
+
+
           // ── Stateless Demo: Static Info Card ──
           const _StaticInfoCard(),
 
@@ -102,6 +106,24 @@ class StateDemoPage extends StatelessWidget {
                 '☝️ Pure display — no interactivity at all. A StatelessWidget is perfect for showing fixed content like labels, icons, and info rows.',
           ),
 
+          const SizedBox(height: 24),
+
+
+            // ── Stateful Demo: Live Timestamp (contrast to Frozen) ──
+          const _SectionHeader(
+            icon: Icons.update,
+            title: 'Stateful Widget Demo — Live Clock',
+            badge: 'STATEFUL',
+            badgeColor: Color(0xFF00C950),
+          ),
+          const SizedBox(height: 8),
+          const _LiveTimestampCard(),
+
+          const SizedBox(height: 8),
+          const _HintCard(
+            text:
+                '☝️ Compare this to the frozen clock above! Same layout, but this one uses a StatefulWidget with a Timer. Every second, setState() is called and Flutter rebuilds the widget with the new time.',
+          ),
           const SizedBox(height: 24),
 
           // ── Stateful Demo: Counter ──
@@ -122,6 +144,7 @@ class StateDemoPage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+      
           // ── Stateful Demo: Theme Switcher ──
           const _SectionHeader(
             icon: Icons.palette_outlined,
@@ -654,6 +677,133 @@ class _StaticInfoCard extends StatelessWidget {
         ),
         Icon(Icons.lock_outline, size: 14, color: Colors.grey.shade400),
       ],
+    );
+  }
+}
+
+// ==========================================
+// Stateful: Live Timestamp Card
+// ==========================================
+class _LiveTimestampCard extends StatefulWidget {
+  const _LiveTimestampCard();
+
+  @override
+  State<_LiveTimestampCard> createState() => _LiveTimestampCardState();
+}
+
+class _LiveTimestampCardState extends State<_LiveTimestampCard> {
+  late DateTime _now;
+  Timer? _timer;
+  bool _isRunning = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _now = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_isRunning) {
+        setState(() {
+          _now = DateTime.now();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String get _timeString =>
+      '${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}:${_now.second.toString().padLeft(2, '0')}';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          // Live state indicator
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF00C950),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'state: time = $_timeString (updates every 1s)',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Icon(
+            _isRunning ? Icons.access_time_filled : Icons.pause_circle_outline,
+            size: 40,
+            color: const Color(0xFF00C950),
+          ),
+          const SizedBox(height: 8),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: Text(
+              _timeString,
+              key: ValueKey<String>(_timeString),
+              style: const TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'monospace',
+                color: Color(0xFF101828),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _isRunning ? 'Updating every second via setState()' : 'Paused — no setState() calls',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF4A5565)),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                setState(() {
+                  _isRunning = !_isRunning;
+                });
+              },
+              icon: Icon(_isRunning ? Icons.pause : Icons.play_arrow, size: 18),
+              label: Text(_isRunning ? 'Pause' : 'Resume'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00C950),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

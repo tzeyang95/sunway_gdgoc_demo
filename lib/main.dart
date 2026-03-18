@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'ui_showcase.dart';
 import 'state_demo_page.dart';
+import 'widget_quiz_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,8 +35,9 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const UiShowcasePage(), // The new beautiful UI page
-    const StateDemoPage(),  // The previous State explanation page
+    const UiShowcasePage(),    // The new beautiful UI page
+    const StateDemoPage(),     // The previous State explanation page
+    const WidgetQuizPage(),    // Quiz: guess Stateless vs Stateful
   ];
 
   @override
@@ -57,6 +59,10 @@ class _MainNavigationState extends State<MainNavigation> {
           NavigationDestination(
             icon: Icon(Icons.memory),
             label: 'State Demo',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.quiz_outlined),
+            label: 'Quiz',
           ),
         ],
       ),
