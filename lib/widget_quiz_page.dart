@@ -17,7 +17,9 @@ class WidgetQuizPage extends StatefulWidget {
 class _WidgetQuizPageState extends State<WidgetQuizPage> {
   int _revealedCount = 0;
   int _correctGuesses = 0;
-  final int _totalQuestions = 10;
+ int _totalQuestions = 10;
+
+
 
   void _onRevealed({required bool guessedCorrectly}) {
     setState(() {

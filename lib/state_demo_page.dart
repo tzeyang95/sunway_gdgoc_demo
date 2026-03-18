@@ -181,6 +181,60 @@ class StateDemoPage extends StatelessWidget {
 
           const SizedBox(height: 24),
 
+          // ── Anatomy: Two-Class Structure ──
+          const _SectionHeader(
+            icon: Icons.architecture,
+            title: 'Anatomy of a StatefulWidget',
+            badge: 'DEEP DIVE',
+            badgeColor: Color(0xFF7C3AED),
+          ),
+          const SizedBox(height: 8),
+          const _AnatomyCard(),
+
+          const SizedBox(height: 12),
+          const _HintCard(
+            text:
+                '☝️ Key insight: Flutter can destroy & recreate Class 1 (the widget) at any time. But Class 2 (the State) SURVIVES. That\'s why your variables live in the State class!',
+          ),
+
+          const SizedBox(height: 16),
+
+          // ── What Happens on setState ──
+          const _SectionHeader(
+            icon: Icons.sync_alt,
+            title: 'What Happens When setState() Runs?',
+            badge: 'FLOW',
+            badgeColor: Color(0xFF7C3AED),
+          ),
+          const SizedBox(height: 8),
+          const _SetStateFlowCard(),
+
+          const SizedBox(height: 12),
+          const _HintCard(
+            text:
+                '💡 "build() is called again" does NOT mean the State object is recreated! The same State object calls its own build() method again — like a painter painting a new canvas. The painter (State) stays, the canvas (widget tree) is new.',
+          ),
+
+          const SizedBox(height: 16),
+
+          // ── Interactive Rebuild Proof ──
+          const _SectionHeader(
+            icon: Icons.science,
+            title: 'Proof: State Survives Rebuilds',
+            badge: 'INTERACTIVE',
+            badgeColor: Color(0xFF7C3AED),
+          ),
+          const SizedBox(height: 8),
+          const _RebuildProofDemo(),
+
+          const SizedBox(height: 8),
+          const _HintCard(
+            text:
+                '☝️ Notice: the build count keeps going up, but _createdAt never changes! This PROVES the State object was created once and reused. Only build() is called again — the object persists.',
+          ),
+
+          const SizedBox(height: 24),
+
           // ── Key Takeaway ──
           const _KeyTakeawayCard(),
 
@@ -1189,6 +1243,593 @@ class _FollowButtonDemoState extends State<_FollowButtonDemo> {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ==========================================
+// Anatomy: Two-Class Structure
+// ==========================================
+class _AnatomyCard extends StatelessWidget {
+  const _AnatomyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          const Row(
+            children: [
+              Icon(Icons.account_tree, size: 18, color: Color(0xFF7C3AED)),
+              SizedBox(width: 8),
+              Text(
+                'Why two classes?',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF101828),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Class 1
+          _anatomyBox(
+            classNumber: '1',
+            title: 'StatefulWidget (the shell)',
+            subtitle: 'extends StatefulWidget',
+            color: const Color(0xFF155DFC),
+            icon: Icons.widgets_outlined,
+            points: [
+              '❄️ Immutable — just like StatelessWidget!',
+              '🏭 Only job: createState() → returns State object',
+              '♻️ Recreated often by Flutter framework',
+              '📦 Holds constructor params (final fields only)',
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Arrow
+          const Center(
+            child: Column(
+              children: [
+                Icon(Icons.arrow_downward, color: Color(0xFF9CA3AF), size: 20),
+                Text(
+                  'createState()',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+                Icon(Icons.arrow_downward, color: Color(0xFF9CA3AF), size: 20),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Class 2
+          _anatomyBox(
+            classNumber: '2',
+            title: 'State (the engine)',
+            subtitle: 'extends State<MyWidget>',
+            color: const Color(0xFF00C950),
+            icon: Icons.settings,
+            points: [
+              '🔥 Mutable — THIS is where state lives!',
+              '🏠 Long-lived: survives widget rebuilds',
+              '🎨 Has build() — returns the widget tree',
+              '📢 Has setState() — triggers rebuild',
+              '🧹 Has dispose() — cleanup resources',
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Analogy
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F3FF),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFDDD6FE)),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('🎨 ', style: TextStyle(fontSize: 16)),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Analogy: ',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        TextSpan(
+                          text:
+                              'Class 1 is a painter\'s business card (can be reprinted). Class 2 is the painter themselves (lives on, remembers everything, keeps painting new canvases).',
+                        ),
+                      ],
+                    ),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF5B21B6),
+                      height: 18 / 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _anatomyBox({
+    required String classNumber,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required IconData icon,
+    required List<String> points,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Center(
+                  child: Text(
+                    classNumber,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                        color: color.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(icon, size: 20, color: color.withOpacity(0.5)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...points.map((p) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  p,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF364153),
+                    height: 18 / 13,
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+// ==========================================
+// setState Flow Card
+// ==========================================
+class _SetStateFlowCard extends StatelessWidget {
+  const _SetStateFlowCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          _flowStep(
+            step: '1',
+            icon: Icons.touch_app,
+            color: const Color(0xFF155DFC),
+            title: 'User taps button',
+            subtitle: 'onPressed callback fires',
+          ),
+          _flowArrow(),
+          _flowStep(
+            step: '2',
+            icon: Icons.code,
+            color: const Color(0xFF7C3AED),
+            title: 'setState(() { _count++; })',
+            subtitle: 'Runs the callback → _count is now 1',
+          ),
+          _flowArrow(),
+          _flowStep(
+            step: '3',
+            icon: Icons.flag,
+            color: const Color(0xFFE88C0C),
+            title: 'Widget marked "dirty"',
+            subtitle: 'Flutter schedules a rebuild for this widget',
+          ),
+          _flowArrow(),
+          _flowStep(
+            step: '4',
+            icon: Icons.refresh,
+            color: const Color(0xFF00C950),
+            title: 'build() called on SAME State object',
+            subtitle: 'State object persists! Only build() runs again.',
+          ),
+          _flowArrow(),
+          _flowStep(
+            step: '5',
+            icon: Icons.compare_arrows,
+            color: const Color(0xFF155DFC),
+            title: 'Flutter diffs old vs new tree',
+            subtitle: 'Only changed parts are re-rendered on screen',
+          ),
+
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD4183D).withOpacity(0.06),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFD4183D).withOpacity(0.2)),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('⚠️ ', style: TextStyle(fontSize: 14)),
+                Expanded(
+                  child: Text(
+                    'Common misconception: "rebuild" does NOT mean the State object is destroyed! It means build() is called again on the SAME object. Your _count, _isRunning, etc. are still there.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFD4183D),
+                      height: 17 / 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _flowStep({
+    required String step,
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Text(
+              step,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  fontFamily: step == '2' ? 'monospace' : null,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF4A5565),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Icon(icon, size: 20, color: color.withOpacity(0.5)),
+      ],
+    );
+  }
+
+  Widget _flowArrow() {
+    return const Padding(
+      padding: EdgeInsets.only(left: 14, top: 2, bottom: 2),
+      child: Icon(Icons.arrow_downward, size: 16, color: Color(0xFFD1D5DB)),
+    );
+  }
+}
+
+// ==========================================
+// Rebuild Proof Demo (Stateful)
+// ==========================================
+class _RebuildProofDemo extends StatefulWidget {
+  const _RebuildProofDemo();
+
+  @override
+  State<_RebuildProofDemo> createState() => _RebuildProofDemoState();
+}
+
+class _RebuildProofDemoState extends State<_RebuildProofDemo> {
+  // These are set ONCE in the State constructor / initState
+  // and NEVER change — proving the State object persists.
+  final DateTime _createdAt = DateTime.now();
+  int _buildCount = 0;
+
+  // This is the mutable state
+  int _counter = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    _buildCount++; // Increments every time build() is called
+
+    final createdTimeStr =
+        '${_createdAt.hour.toString().padLeft(2, '0')}:${_createdAt.minute.toString().padLeft(2, '0')}:${_createdAt.second.toString().padLeft(2, '0')}';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          // State object info
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF7C3AED).withOpacity(0.05),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF7C3AED).withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'State Object Inspector',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF7C3AED),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _inspectorRow(
+                  label: '_createdAt',
+                  value: createdTimeStr,
+                  note: '← set ONCE, never changes',
+                  color: const Color(0xFF155DFC),
+                ),
+                const SizedBox(height: 4),
+                _inspectorRow(
+                  label: '_buildCount',
+                  value: '$_buildCount',
+                  note: '← increments each build()',
+                  color: const Color(0xFFE88C0C),
+                ),
+                const SizedBox(height: 4),
+                _inspectorRow(
+                  label: '_counter',
+                  value: '$_counter',
+                  note: '← your mutable state',
+                  color: const Color(0xFF00C950),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // The counter display
+          Text(
+            '$_counter',
+            style: const TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF101828),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'build() called $_buildCount time${_buildCount == 1 ? '' : 's'}',
+            style: const TextStyle(
+              fontSize: 13,
+              fontFamily: 'monospace',
+              color: Color(0xFFE88C0C),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text(
+            'State created at $createdTimeStr (never changes!)',
+            style: const TextStyle(
+              fontSize: 12,
+              fontFamily: 'monospace',
+              color: Color(0xFF155DFC),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => setState(() => _counter++),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('setState(() { _counter++ })'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00C950),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    textStyle: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // What survives vs what's new
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFBBF7D0)),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'On each setState():',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF166534),
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  '✅ State object → SAME (created once)\n'
+                  '✅ _createdAt → SAME (never reassigned)\n'
+                  '✅ _counter → UPDATED (mutated in place)\n'
+                  '🔄 build() → CALLED AGAIN (new widget tree)\n'
+                  '🗑️ Old widget tree → DISCARDED',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                    color: Color(0xFF166534),
+                    height: 18 / 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _inspectorRow({
+    required String label,
+    required String value,
+    required String note,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          '$label: ',
+          style: const TextStyle(
+            fontSize: 12,
+            fontFamily: 'monospace',
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF101828),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'monospace',
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            note,
+            style: const TextStyle(
+              fontSize: 10,
+              fontFamily: 'monospace',
+              color: Color(0xFF9CA3AF),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
